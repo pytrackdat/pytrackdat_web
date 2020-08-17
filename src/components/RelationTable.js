@@ -4,9 +4,21 @@ import PropTypes from "prop-types";
 import {Table} from "antd";
 import "antd/es/table/style/css";
 
-const RelationTable = ({relation, dataSource, count, offset, limit, loading, loadPage}) => {
+const SORTABLE_TYPES = [
+    "auto key",
+    "manual key",
+    "integer",
+    "float",
+    "decimal",
+    "text",
+    "date",
+    "time",
+    "foreign key",
+];
+
+const RelationTable = ({relation, dataSource, count, offset, limit, loading, filters, sorter, loadPage}) => {
     useEffect(() => {
-        loadPage(relation.name_lower, offset || 0, limit);
+        loadPage(relation.name_lower, offset || 0, limit, filters, sorter);
     }, [relation]);
 
     // noinspection JSUnusedGlobalSymbols
@@ -15,6 +27,14 @@ const RelationTable = ({relation, dataSource, count, offset, limit, loading, loa
         .map(f => ({
             title: f.name,
             dataIndex: f.name,
+            ...(SORTABLE_TYPES.includes(f.data_type) ? {
+                sorter: true,
+                sortDirections: ["ascend", "descend"],
+            } : {}),
+            filtered: Object.keys(filters).includes(f.name)
+                && !(Array.isArray(filters[f.name]) && filters[f.name].length === 0),
+            ...(Object.keys(filters).includes(f.name) ? {filteredValue: filters[f.name]} : {}),
+            ...(sorter && sorter.field === f.name ? {sortOrder: sorter.order} : {}),
             ...(f.choices ? {
                 filters: f.choices.map(c => ({
                     text: c,
@@ -33,14 +53,14 @@ const RelationTable = ({relation, dataSource, count, offset, limit, loading, loa
                   columns={colSpec}
                   dataSource={dataSource}
                   loading={loading}
+                  onChange={({pageSize, current}, filters, sorter) => {
+                      loadPage(relation.name_lower, pageSize * (current - 1), pageSize, filters, sorter);
+                  }}
                   pagination={{
                       current: 1 + Math.floor(offset / limit),
                       pageSize: limit,
                       pageSizeOptions: [50, 100, 250],
                       total: count,
-                      onChange: (page, pageSize) => {
-                          loadPage(relation.name_lower, (page - 1) * pageSize, pageSize);  // TODO: Sort
-                      },
                   }} />;
 };
 

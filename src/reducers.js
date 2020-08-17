@@ -51,6 +51,7 @@ const data = (
                         ...(state.dataByType || {}),
                         isFetching: true,
                         offset: action.params.offset || 0,
+                        filters: {},
                     }
                 },
             };
@@ -66,6 +67,8 @@ const data = (
                         data: action.data.results,
                         offset: action.params.offset || 0,
                         limit: action.params.limit || 100,
+                        filters: action.filters || {},
+                        sorter: action.sorter || null,
                     }
                 },
                 errorMessage: "",

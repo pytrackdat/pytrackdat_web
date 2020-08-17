@@ -22,6 +22,8 @@ const RelationsView = ({relations, dataByType, fetchDataType}) => {
                                    offset={data.offset || 0}
                                    limit={data.limit || 100}
                                    loading={data.isFetching === undefined ? true : data.isFetching}
+                                   filters={data.filters || {}}
+                                   sorter={data.sorter || null}
                                    loadPage={fetchDataType}
                     />
                 </Tabs.TabPane>;
