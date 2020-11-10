@@ -21,7 +21,9 @@ export const fetchDataType = (
         .filter(e => e[1] !== null)
         .map(([k, v]) => Array.isArray(v) ? `&${k}__in=${v.join(",")}` : `&${k}=${v}`)
         .join("");
-    const sortString = sorter ? `&ordering=${(sorter.order === "ascend" ? "+" : "-")}${sorter.field}` : "";
+    const sortString = (sorter && sorter.field)
+        ? `&ordering=${(sorter.order === "ascend" ? "+" : "-")}${sorter.field}`
+        : "";
     return dispatch(networkAction(
         FETCH_DATA,
         `/data/${dataType}/?limit=${limit}&offset=${offset}${filterString}${sortString}`,
