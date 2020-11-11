@@ -22,6 +22,7 @@
   "homepage": "https://github.com/pytrackdat/pytrackdat_web#readme",
   "dependencies": {
     "antd": "^4.8.2",
+    "leaflet": "^1.7.1",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",

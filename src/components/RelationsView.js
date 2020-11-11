@@ -1,23 +1,54 @@
-import React from "react";
+import React, {useState} from "react";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
-import {PageHeader, Tabs} from "antd";
+import {PageHeader, Radio, Tabs} from "antd";
 import "antd/es/page-header/style/css";
+import "antd/es/radio/style/css";
 import "antd/es/tabs/style/css";
 
 import {fetchDataType} from "../actions";
 
 import RelationTable from "./RelationTable";
+import RelationMap from "./RelationMap";
+import {DATA_TYPES_SPEC} from "../constants";
+
+const VIEW_TABLE = "table";
+const VIEW_MAP = "map";
+
+const VIEW_COMPONENTS = {
+    [VIEW_TABLE]: RelationTable,
+    [VIEW_MAP]: RelationMap,
+};
 
 const RelationsView = ({relations, dataByType, fetchDataType}) => {
-    return <PageHeader title="Relations" subTitle="Data types in the PyTrackDat instance" style={{background: "white"}}>
-        <Tabs>
+    // TODO: Routed
+    const [currentRelation, setCurrentRelation] = useState(((relations || [])[0] || {}).name_lower);
+    const [currentView, setCurrentView] = useState(VIEW_TABLE);
+
+    const isGis = !!(relations || []).filter(r =>
+        (r.fields || []).filter(f => DATA_TYPES_SPEC[f.data_type].gis).length).length;
+
+    const ViewComponent = VIEW_COMPONENTS[currentView];
+
+    return <PageHeader title="Relations"
+                       subTitle="Data types in the PyTrackDat instance"
+                       extra={[
+                           <Radio.Group options={[
+                               {label: "Table", value: VIEW_TABLE},
+                               {label: "Map", value: VIEW_MAP, disabled: !isGis},
+                           ]} onChange={e => {
+                               setCurrentView(e.target.value);
+                           }} value={currentView} />
+                       ]}
+                       style={{background: "white"}}>
+        <Tabs activeKey={currentRelation} onChange={setCurrentRelation}>
             {(relations || []).map(r => {
                 const data = dataByType[r.name_lower] || {};
                 return <Tabs.TabPane tab={r.name_lower} key={r.name_lower}>
-                    <RelationTable relation={r}
-                                   dataSource={data.data || []}
+                    {/* TODO: Don't have one map/table per relation */}
+                    <ViewComponent relation={r}
+                                   data={data.data || []}
                                    count={data.count || 0}
                                    offset={data.offset || 0}
                                    limit={data.limit || 100}

@@ -4,26 +4,19 @@ import PropTypes from "prop-types";
 import {Table} from "antd";
 import "antd/es/table/style/css";
 
-const SORTABLE_TYPES = [
-    "auto key",
-    "manual key",
-    "integer",
-    "float",
-    "decimal",
-    "text",
-    "date",
-    "time",
-    "foreign key",
-];
+import {DATA_TYPES, SORTABLE_TYPES} from "../constants";
+import {isKey} from "../utils";
 
-const RelationTable = ({relation, dataSource, count, offset, limit, loading, filters, sorter, loadPage}) => {
+const RelationTable = ({relation, data, count, offset, limit, loading, filters, sorter, loadPage}) => {
     useEffect(() => {
         loadPage(relation.name_lower, offset || 0, limit, filters, sorter);
     }, [relation]);
 
+    const fields = (relation || {}).fields || [];
+
     // noinspection JSUnusedGlobalSymbols
-    const colSpec = ((relation || {}).fields || [])
-        .filter(f => f.show_in_table || ["auto key", "manual key"].includes(f.data_type))
+    const colSpec = fields
+        .filter(f => f.show_in_table || isKey(f))
         .map(f => ({
             title: f.name,
             dataIndex: f.name,
@@ -43,6 +36,7 @@ const RelationTable = ({relation, dataSource, count, offset, limit, loading, fil
                 onFilter: (value, record) => record[f.name] === value,
             } : {}),
             ...(f.data_type === "point" ? {
+                // TODO: I think DRF-GIS supports null points now...
                 render: d => (JSON.stringify(d.coordinates) === "[0,0]" ? "" : JSON.stringify(d.coordinates))
             } : {}),
         }));
@@ -51,8 +45,16 @@ const RelationTable = ({relation, dataSource, count, offset, limit, loading, fil
     return <Table size="middle"
                   bordered={true}
                   columns={colSpec}
-                  dataSource={dataSource}
+                  dataSource={data}
                   loading={loading}
+                  rowSelection={{
+                      type: "checkbox",
+                      onChange: () => {},  // TODO
+                      getCheckboxProps: record => {
+                          const key = fields.filter(isKey)[0];
+                          return {name: record[key] || "default"};
+                      }
+                  }}
                   onChange={({pageSize, current}, filters, sorter) => {
                       loadPage(relation.name_lower, pageSize * (current - 1), pageSize, filters, sorter);
                   }}
@@ -70,25 +72,7 @@ RelationTable.propTypes = {
             additional_fields: PropTypes.arrayOf(PropTypes.string),
             choices: PropTypes.arrayOf(PropTypes.string),
             csv_names: PropTypes.arrayOf(PropTypes.string),
-            data_type: PropTypes.oneOf([
-                "auto key",
-                "manual key",
-                "integer",
-                "float",
-                "decimal",
-                "boolean",
-                "text",
-                "date",
-                "time",
-                "foreign key",
-
-                "point",
-                "line string",
-                "polygon",
-                "multi point",
-                "multi line string",
-                "multi polygon",
-            ]),
+            data_type: PropTypes.oneOf(DATA_TYPES),
             // TODO: Default
             description: PropTypes.string,
             name: PropTypes.string,
@@ -97,6 +81,8 @@ RelationTable.propTypes = {
             show_in_table: PropTypes.bool,
         })),
     }),
+    data: PropTypes.arrayOf(PropTypes.object),
+    loading: PropTypes.bool,
 };
 
 export default RelationTable;

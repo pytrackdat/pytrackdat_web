@@ -1,4 +1,7 @@
 import {BASE_URL} from "./config";
+import {KEY_TYPES} from "./constants";
+
+export const isKey = f => KEY_TYPES.includes(f.data_type);
 
 export const networkActionTypes = name => ({
     REQUEST: `${name}.REQUEST`,
