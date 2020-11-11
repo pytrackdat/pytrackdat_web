@@ -34,7 +34,7 @@ const RelationsView = ({relations, dataByType, fetchDataType}) => {
     return <PageHeader title="Relations"
                        subTitle="Data types in the PyTrackDat instance"
                        extra={[
-                           <Radio.Group options={[
+                           <Radio.Group key="viewMode" optionType="button" options={[
                                {label: "Table", value: VIEW_TABLE},
                                {label: "Map", value: VIEW_MAP, disabled: !isGis},
                            ]} onChange={e => {
@@ -45,18 +45,22 @@ const RelationsView = ({relations, dataByType, fetchDataType}) => {
         <Tabs activeKey={currentRelation} onChange={setCurrentRelation}>
             {(relations || []).map(r => {
                 const data = dataByType[r.name_lower] || {};
+                const viewProps = {
+                    relation: r,
+                    data: data.data || [],
+                    count: data.count || 0,
+                    offset: data.offset || 0,
+                    limit: data.limit || 100,
+                    loading: data.isFetching === undefined ? true : data.isFetching,
+                    filters: data.filters || {},
+                    sorter: data.sorter || null,
+                    loadPage: fetchDataType,
+                };
+
                 return <Tabs.TabPane tab={r.name_lower} key={r.name_lower}>
                     {/* TODO: Don't have one map/table per relation */}
-                    <ViewComponent relation={r}
-                                   data={data.data || []}
-                                   count={data.count || 0}
-                                   offset={data.offset || 0}
-                                   limit={data.limit || 100}
-                                   loading={data.isFetching === undefined ? true : data.isFetching}
-                                   filters={data.filters || {}}
-                                   sorter={data.sorter || null}
-                                   loadPage={fetchDataType}
-                    />
+                    <RelationTable {...viewProps} visible={currentView===VIEW_TABLE} />
+                    <RelationMap {...viewProps} visible={currentView===VIEW_MAP} />
                 </Tabs.TabPane>;
             })}
         </Tabs>

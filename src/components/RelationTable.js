@@ -7,7 +7,7 @@ import "antd/es/table/style/css";
 import {DATA_TYPES, SORTABLE_TYPES} from "../constants";
 import {isKey} from "../utils";
 
-const RelationTable = ({relation, data, count, offset, limit, loading, filters, sorter, loadPage}) => {
+const RelationTable = ({relation, data, count, offset, limit, loading, filters, sorter, loadPage, visible}) => {
     useEffect(() => {
         loadPage(relation.name_lower, offset || 0, limit, filters, sorter);
     }, [relation]);
@@ -41,20 +41,23 @@ const RelationTable = ({relation, data, count, offset, limit, loading, filters, 
             } : {}),
         }));
 
+    if (!visible) return <div />;
+
     // noinspection JSUnusedGlobalSymbols
     return <Table size="middle"
                   bordered={true}
                   columns={colSpec}
                   dataSource={data}
                   loading={loading}
-                  rowSelection={{
-                      type: "checkbox",
-                      onChange: () => {},  // TODO
-                      getCheckboxProps: record => {
-                          const key = fields.filter(isKey)[0];
-                          return {name: record[key] || "default"};
-                      }
-                  }}
+                  rowKey={fields.filter(isKey)[0]["name"]}
+                  // rowSelection={{
+                  //     type: "checkbox",
+                  //     onChange: () => {},  // TODO
+                  //     getCheckboxProps: record => {
+                  //         const key = fields.filter(isKey)[0];
+                  //         return {name: record[key] || "default"};
+                  //     }
+                  // }}
                   onChange={({pageSize, current}, filters, sorter) => {
                       loadPage(relation.name_lower, pageSize * (current - 1), pageSize, filters, sorter);
                   }}
