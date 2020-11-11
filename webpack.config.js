@@ -35,5 +35,10 @@ module.exports = {
             template: path.resolve(__dirname, "./src/template.html"),
             hash: true,
         }),
+        new webpack.EnvironmentPlugin({
+            NODE_ENV: "development",
+            // TODO: Site URL
+            // TODO: MapBox access token
+        }),
     ]
 }
