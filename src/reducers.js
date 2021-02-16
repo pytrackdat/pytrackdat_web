@@ -1,6 +1,58 @@
 import {combineReducers} from "redux";
 
-import {FETCH_META, FETCH_DATA} from "./actions";
+import {PERFORM_INITIAL_AUTH, REFRESH_AUTH, INVALIDATE_AUTH, FETCH_META, FETCH_DATA} from "./actions";
+
+const auth = (
+    state = {
+        tokens: {},
+        isAuthenticating: false,
+        isRefreshing: false,
+        errorMessage: "",
+    },
+    action
+) => {
+    switch (action.type) {
+        case PERFORM_INITIAL_AUTH.REQUEST:
+            return {...state, isAuthenticating: true};
+        case PERFORM_INITIAL_AUTH.RECEIVE:
+            return {
+                ...state,
+                isAuthenticating: false,
+                isRefreshing: false,
+                tokens: action.data,
+                errorMessage: "",
+            };
+        case PERFORM_INITIAL_AUTH.ERROR:
+            return {
+                ...state,
+                tokens: {},
+                isAuthenticating: false,
+                isRefreshing: false,
+                errorMessage: action.message,
+            };
+
+        case REFRESH_AUTH.REQUEST:
+            return {...state, isRefreshing: true};
+        case REFRESH_AUTH.RECEIVE:
+            return {
+                ...state,
+                tokens: {...state.tokens, ...action.data},
+                isRefreshing: false,
+            };
+        case REFRESH_AUTH.ERROR:  // TODO: Do we want to invalidate stuff here?
+            return {
+                ...state,
+                isRefreshing: false,
+                errorMessage: action.message,
+            };
+
+        case INVALIDATE_AUTH:
+            return {...state, tokens: {}};
+
+        default:
+            return state;
+    }
+};
 
 const meta = (
     state = {
@@ -91,6 +143,7 @@ const data = (
 };
 
 const rootReducer = combineReducers({
+    auth,
     meta,
     data,
 });

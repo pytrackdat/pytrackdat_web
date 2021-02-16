@@ -9,13 +9,15 @@ export const networkActionTypes = name => ({
     ERROR: `${name}.ERROR`,
 });
 
-export const networkAction = (types, url, method="GET", params={}) => () => async dispatch => {
+export const networkAction = (types, url, method="GET", params={}, body={}) => () => async dispatch => {
     console.log(types);
 
     await dispatch({params, type: types.REQUEST});
 
     try {
-        const r = await fetch(BASE_URL + url, {method, headers: {"Content-Type": "application/json"}});
+        const r = await fetch(
+            BASE_URL + url,
+            {method, headers: {"Content-Type": "application/json"}, ...body});
 
         if (r.ok) {
             const data = await r.json();
