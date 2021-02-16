@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import leaflet from "leaflet";
 import "leaflet/dist/leaflet.css";
 import icon from "leaflet/dist/images/marker-icon.png";
+import icon2X from "leaflet/dist/images/marker-icon-2x.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
 
 import {MAPBOX_ACCESS_TOKEN} from "../config";
@@ -13,6 +14,7 @@ import {isKey} from "../utils";
 // Fix default marker icon (thanks crob611)
 leaflet.Marker.prototype.options.icon = leaflet.icon({
     iconUrl: icon,
+    iconRetinaUrl: icon2X,
     shadowUrl: iconShadow,
 })
 
