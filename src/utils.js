@@ -1,5 +1,6 @@
 import {BASE_URL} from "./config";
 import {KEY_TYPES} from "./constants";
+import jwtDecode from "jwt-decode";
 
 export const isKey = f => KEY_TYPES.includes(f.data_type);
 
@@ -44,3 +45,16 @@ export const networkAction = (types, url, method="GET", params={}, body={}) => (
             await dispatch({type: types.ERROR, message: error.toString()});
         }
     };
+
+export const refreshTokenValid = refreshToken => {
+    try {
+        const tokenData = jwtDecode(refreshToken);
+        if (Date.now() >= tokenData.exp * 1000) {
+            // Refresh token is expired
+            return false;
+        }
+    } catch (e) {
+        return false;
+    }
+    return true;
+}

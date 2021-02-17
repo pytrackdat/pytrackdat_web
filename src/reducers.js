@@ -1,6 +1,14 @@
 import {combineReducers} from "redux";
 
-import {PERFORM_INITIAL_AUTH, REFRESH_AUTH, INVALIDATE_AUTH, FETCH_META, FETCH_DATA} from "./actions";
+import {
+    PERFORM_INITIAL_AUTH,
+    REFRESH_AUTH,
+    INVALIDATE_AUTH,
+    FETCH_META,
+    FETCH_DATA,
+    SET_REFRESH_TOKEN
+} from "./actions";
+import {LS_REFRESH_TOKEN} from "./constants";
 
 const auth = (
     state = {
@@ -15,6 +23,9 @@ const auth = (
         case PERFORM_INITIAL_AUTH.REQUEST:
             return {...state, isAuthenticating: true};
         case PERFORM_INITIAL_AUTH.RECEIVE:
+            // LocalStorage hijacking
+            localStorage.setItem(LS_REFRESH_TOKEN, action.data.refresh);
+            // Normal stuff
             return {
                 ...state,
                 isAuthenticating: false,
@@ -30,6 +41,12 @@ const auth = (
                 isRefreshing: false,
                 errorMessage: action.message,
             };
+
+        case SET_REFRESH_TOKEN:
+            // LocalStorage hijacking
+            localStorage.setItem(LS_REFRESH_TOKEN, action.refresh);
+            // Normal stuff
+            return {...state, tokens: {...state.tokens, refresh: action.refresh}};
 
         case REFRESH_AUTH.REQUEST:
             return {...state, isRefreshing: true};

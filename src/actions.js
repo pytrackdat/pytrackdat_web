@@ -1,6 +1,7 @@
-import {ACCESS_TOKEN_LEEWAY} from "./constants";
-import {networkActionTypes, networkAction} from "./utils";
 import jwtDecode from "jwt-decode";
+
+import {ACCESS_TOKEN_LEEWAY} from "./constants";
+import {networkActionTypes, networkAction, refreshTokenValid} from "./utils";
 
 export const PERFORM_INITIAL_AUTH = networkActionTypes("PERFORM_INITIAL_AUTH");
 
@@ -16,6 +17,9 @@ export const performInitialAuth = (username, password) => async (dispatch, getSt
     return dispatch(fetchSiteMetaIfNeeded());
 };
 
+export const SET_REFRESH_TOKEN = "SET_REFRESH_TOKEN";
+export const setRefreshToken = refresh => ({type: SET_REFRESH_TOKEN, refresh});
+
 export const INVALIDATE_AUTH = "INVALIDATE_AUTH";
 const invalidateAuth = () => ({type: INVALIDATE_AUTH});
 
@@ -28,13 +32,7 @@ export const refreshOrInvalidateAuth = () => (dispatch, getState) => {
     if (!refresh) return;
 
     // Make sure the refresh token is valid; if not, invalidate the auth state
-    try {
-        const tokenData = jwtDecode(refresh);
-        if (Date.now() >= tokenData.exp * 1000) {
-            // Refresh token is expired
-            return dispatch(invalidateAuth());
-        }
-    } catch (e) {
+    if (!refreshTokenValid(refresh)) {
         return dispatch(invalidateAuth());
     }
 

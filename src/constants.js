@@ -23,3 +23,5 @@ export const KEY_TYPES = Object.entries(DATA_TYPES_SPEC).filter(e => e[1].key).m
 export const SORTABLE_TYPES = Object.entries(DATA_TYPES_SPEC).filter(e => e[1].sortable).map(e => e[0]);
 
 export const ACCESS_TOKEN_LEEWAY = 65;
+
+export const LS_REFRESH_TOKEN = "pytrackdat:refreshToken";
