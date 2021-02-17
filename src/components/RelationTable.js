@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 import {Table} from "antd";
 
-import {DATA_TYPES, SORTABLE_TYPES} from "../constants";
+import {DATA_TYPES, PAGE_SIZE_OPTIONS, SORTABLE_TYPES} from "../constants";
 import {isKey} from "../utils";
 
 const RelationTable = ({relation, data, count, offset, limit, loading, filters, sorter, loadPage, visible}) => {
@@ -63,7 +63,7 @@ const RelationTable = ({relation, data, count, offset, limit, loading, filters, 
                   pagination={{
                       current: 1 + Math.floor(offset / limit),
                       pageSize: limit,
-                      pageSizeOptions: [50, 100, 250],
+                      pageSizeOptions: PAGE_SIZE_OPTIONS,
                       total: count,
                   }} />;
 };

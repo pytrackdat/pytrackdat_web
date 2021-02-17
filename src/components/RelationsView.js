@@ -13,10 +13,10 @@ import {DATA_TYPES_SPEC} from "../constants";
 const VIEW_TABLE = "table";
 const VIEW_MAP = "map";
 
-const VIEW_COMPONENTS = {
-    [VIEW_TABLE]: RelationTable,
-    [VIEW_MAP]: RelationMap,
-};
+// const VIEW_COMPONENTS = {
+//     [VIEW_TABLE]: RelationTable,
+//     [VIEW_MAP]: RelationMap,
+// };
 
 const RelationsView = ({relations, dataByType, fetchDataType}) => {
     // TODO: Routed
@@ -26,7 +26,7 @@ const RelationsView = ({relations, dataByType, fetchDataType}) => {
     const isGis = !!(relations || []).filter(r =>
         (r.fields || []).filter(f => DATA_TYPES_SPEC[f.data_type].gis).length).length;
 
-    const ViewComponent = VIEW_COMPONENTS[currentView];
+    // const ViewComponent = VIEW_COMPONENTS[currentView];
 
     return <PageHeader title="Relations"
                        subTitle="Data types in the PyTrackDat instance"

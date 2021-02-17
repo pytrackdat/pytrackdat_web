@@ -1,20 +1,23 @@
 import React, {useEffect, useRef, useState} from "react";
 import PropTypes from "prop-types";
 
+import {Pagination, Spin} from "antd";
+
 import leaflet from "leaflet";
 import "leaflet/dist/leaflet.css";
 import icon from "leaflet/dist/images/marker-icon.png";
-import icon2X from "leaflet/dist/images/marker-icon-2x.png";
+// import icon2X from "leaflet/dist/images/marker-icon-2x.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
 
 import {MAPBOX_ACCESS_TOKEN} from "../config";
 import {isKey} from "../utils";
+import {PAGE_SIZE_OPTIONS} from "../constants";
 
 // https://github.com/Leaflet/Leaflet/issues/4968
 // Fix default marker icon (thanks crob611)
 leaflet.Marker.prototype.options.icon = leaflet.icon({
     iconUrl: icon,
-    iconRetinaUrl: icon2X,
+    // iconRetinaUrl: icon2X,
     shadowUrl: iconShadow,
 })
 
@@ -25,9 +28,13 @@ const onPointFeature = (feature, layer) => {
 
 const TILE_LAYER_URL_TEMPLATE = "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}";
 
-const RelationMap = ({relation, data, loading, visible}) => {
+const RelationMap = ({relation, data, count, offset, limit, loading, filters, sorter, loadPage, visible}) => {
     const mapEl = useRef(null);
     const [sMap, setSMap] = useState(null);
+
+    const loadNewData = (current, pageSize) => {
+        loadPage(relation.name_lower, pageSize * (current - 1), pageSize, filters, sorter);
+    };
 
     useEffect(() => {
         if (!mapEl.current) return;
@@ -73,7 +80,26 @@ const RelationMap = ({relation, data, loading, visible}) => {
         setSMap(lMap);
     }, [data, loading])
 
-    return <div ref={mapEl} style={{height: 500, display: visible ? "block" : "none"}} />;
+    // TODO: Layer views (colours, shapes, points / column, record info
+    // TODO: Layer list on side - hide/show
+
+    return <div style={{display: visible ? "block" : "none"}}>
+        <Spin spinning={loading}>
+            <div ref={mapEl} style={{height: 500}} />
+        </Spin>
+        {loading ? null : (
+            <Pagination size="small"
+                        showSizeChanger
+                        onShowSizeChange={loadNewData}
+                        current={1 + Math.floor(offset / limit)}
+                        pageSize={limit}
+                        pageSizeOptions={PAGE_SIZE_OPTIONS}
+                        total={count}
+                        onChange={loadNewData}
+                        style={{float: "right", clear: "both", margin: "16px 0"}}
+            />
+        )}
+    </div>;
 };
 
 RelationMap.propTypes = {
