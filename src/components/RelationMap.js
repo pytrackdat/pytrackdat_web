@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import PropTypes from "prop-types";
 
-import {Col, Pagination, Row, Spin, Tree} from "antd";
+import {Col, Pagination, Row, Spin, Tree, Typography} from "antd";
 
 import leaflet from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -10,8 +10,8 @@ import icon2X from "leaflet/dist/images/marker-icon-2x.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
 
 import {MAPBOX_ACCESS_TOKEN} from "../config";
-import {isKey} from "../utils";
 import {PAGE_SIZE_OPTIONS} from "../constants";
+import {isKey} from "../utils";
 
 // https://github.com/Leaflet/Leaflet/issues/4968
 // Fix default marker icon (thanks crob611)
@@ -28,7 +28,14 @@ const LAYER_MAPBOX_BASE_MAP = "mapbox";
 
 const onPointFeature = (feature, layer) => {
     // TODO: Tabular data
-    layer.bindPopup(`<strong>${feature.properties.title}</strong>`, {
+    layer.bindPopup(`<strong>${feature.properties.title}</strong>
+<table>
+<thead><tr><th>Field</th><th>Value</th></tr></thead>
+<tbody>
+${feature.properties.table.map(([k, v]) => "<tr><td>" + k + "</td><td>" 
+        + JSON.stringify(v) + "</td></tr>").join("")}
+</tbody>
+</table>`, {
         offset: {x: 0, y: -34}
     });
 };
@@ -44,7 +51,10 @@ const RelationMap = ({relation, data, count, offset, limit, loading, filters, so
         loadPage(relation.name_lower, pageSize * (current - 1), pageSize, filters, sorter);
     };
 
-    const pointFields = (relation || {}).fields.filter(f => f.data_type === "point");
+    const fields = (relation || {}).fields || [];
+    const tableFields = fields.filter(f => f.show_in_table || isKey(f));
+    const tableFieldNames = tableFields.map(f => f.name);
+    const pointFields = fields.filter(f => f.data_type === "point");
 
     useEffect(() => {
         if (!mapEl.current) return;
@@ -77,7 +87,10 @@ const RelationMap = ({relation, data, count, offset, limit, loading, filters, so
         // Point layers
         const pointSets = pointFields.map(f => data.map(e => ({
             type: "Feature",
-            properties: {title: e[pk.name]},  // TODO: Tabular data with all fields
+            properties: {
+                title: e[pk.name],
+                table: Object.entries(e).filter(([k, _v]) => tableFieldNames.includes(k)),
+            },  // TODO: Tabular data with all fields
             geometry: e[f.name]
         })).filter(e => e.geometry[0] !== 0));  // Filter out ""null"" (0, 0) points
 
@@ -124,6 +137,7 @@ const RelationMap = ({relation, data, count, offset, limit, loading, filters, so
         <Spin spinning={loading}>
             <Row>
                 <Col span={6} style={{padding: "0 16px"}}>
+                    <Typography.Title level={4}>Layers</Typography.Title>
                     <Tree checkable
                           autoExpandParent
                           expandedKeys={["base_maps"]}
@@ -131,6 +145,7 @@ const RelationMap = ({relation, data, count, offset, limit, loading, filters, so
                           treeData={layerTreeData} />
                 </Col>
                 <Col span={18}>
+                    <Typography.Title level={4}>Map</Typography.Title>
                     <div ref={mapEl} style={{height: 500}} />
                 </Col>
             </Row>
