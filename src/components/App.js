@@ -3,9 +3,6 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
 import {Alert, Layout, Spin} from "antd";
-import "antd/es/alert/style/css";
-import "antd/es/layout/style/css";
-import "antd/es/spin/style/css";
 
 import {fetchSiteMetaIfNeeded} from "../actions";
 

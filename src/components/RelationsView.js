@@ -3,9 +3,6 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
 import {PageHeader, Radio, Tabs} from "antd";
-import "antd/es/page-header/style/css";
-import "antd/es/radio/style/css";
-import "antd/es/tabs/style/css";
 
 import {fetchDataType} from "../actions";
 

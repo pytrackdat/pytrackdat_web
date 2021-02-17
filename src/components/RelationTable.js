@@ -2,7 +2,6 @@ import React, {useEffect} from "react";
 import PropTypes from "prop-types";
 
 import {Table} from "antd";
-import "antd/es/table/style/css";
 
 import {DATA_TYPES, SORTABLE_TYPES} from "../constants";
 import {isKey} from "../utils";

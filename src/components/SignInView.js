@@ -1,12 +1,7 @@
-import React, {useEffect} from "react";
+import React from "react";
 import {connect} from "react-redux";
-import PropTypes from "prop-types";
 
 import {Button, Form, Input, PageHeader} from "antd";
-import "antd/es/button/style/css";
-import "antd/es/form/style/css";
-import "antd/es/input/style/css";
-import "antd/es/page-header/style/css";
 
 import {performInitialAuth} from "../actions";
 
