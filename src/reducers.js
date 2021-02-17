@@ -64,6 +64,9 @@ const auth = (
             };
 
         case INVALIDATE_AUTH:
+            // LocalStorage hijacking
+            localStorage.removeItem(LS_REFRESH_TOKEN);
+            // Normal stuff
             return {...state, tokens: {}};
 
         default:
