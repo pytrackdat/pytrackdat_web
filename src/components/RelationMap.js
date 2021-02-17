@@ -35,9 +35,7 @@ const RelationMap = ({relation, data, loading, visible}) => {
         let lMap = null;
 
         if (sMap) {
-            sMap.eachLayer(l => {
-                l.remove();
-            });
+            sMap.eachLayer(l => l instanceof leaflet.TileLayer || l.remove());
             lMap = sMap;
         } else {
             // TODO: Don't focus always on Canada
