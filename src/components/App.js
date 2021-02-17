@@ -2,15 +2,25 @@ import React, {useEffect} from "react";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
-import {Layout, Spin} from "antd";
+import {Alert, Layout, Spin} from "antd";
+import "antd/es/alert/style/css";
 import "antd/es/layout/style/css";
 import "antd/es/spin/style/css";
 
 import {fetchSiteMetaIfNeeded} from "../actions";
 
 import RelationsView from "./RelationsView";
+import SignInView from "./SignInView";
 
-const App = ({isFetchingMeta, meta, fetchSiteMetaIfNeeded}) => {
+const App = ({
+    isAuthenticating,
+    isAuthenticated,
+    authError,
+    metaError,
+    isFetchingMeta,
+    meta,
+    fetchSiteMetaIfNeeded
+}) => {
     useEffect(() => {
         fetchSiteMetaIfNeeded();
     }, []);
@@ -22,21 +32,35 @@ const App = ({isFetchingMeta, meta, fetchSiteMetaIfNeeded}) => {
             </h1>
         </Layout.Header>
         <Layout.Content>
-            <Spin spinning={isFetchingMeta}>
-                <RelationsView />
+            {authError ? <Alert type="error" showIcon message="Authentication Error" description={authError} /> : null}
+            {metaError ? <Alert type="error" showIcon message="Site Metadata Error" description={metaError} /> : null}
+            <Spin spinning={isAuthenticating || isFetchingMeta}>
+                {isAuthenticated ? <RelationsView /> : <SignInView />}
             </Spin>
         </Layout.Content>
     </Layout>;
 }
 
 App.propTypes = {
+    isAuthenticating: PropTypes.bool,
+    isAuthenticated: PropTypes.bool,
+
+    authError: PropTypes.string,
+    metaError: PropTypes.string,
+
     isFetchingMeta: PropTypes.bool,
     meta: PropTypes.shape({
         site_name: PropTypes.string,
-    })
+    }),
 };
 
 const mapStateToProps = state => ({
+    isAuthenticating: state.auth.isAuthenticating,
+    isAuthenticated: !!state.auth.tokens.refresh,
+
+    authError: state.auth.errorMessage,
+    metaError: state.meta.errorMessage,
+
     isFetchingMeta: state.meta.isFetching,
     meta: state.meta.data,
 });
