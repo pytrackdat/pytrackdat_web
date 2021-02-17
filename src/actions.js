@@ -1,16 +1,19 @@
+import {ACCESS_TOKEN_LEEWAY} from "./constants";
 import {networkActionTypes, networkAction} from "./utils";
+import jwtDecode from "jwt-decode";
 
 export const PERFORM_INITIAL_AUTH = networkActionTypes("PERFORM_INITIAL_AUTH");
 
-export const performInitialAuth = (username, password) => (dispatch, getState) => {
+export const performInitialAuth = (username, password) => async (dispatch, getState) => {
     if (getState().auth.isAuthenticating) return;
-    return dispatch(networkAction(
+    await dispatch(networkAction(
         PERFORM_INITIAL_AUTH,
         "/token/",
         "POST",
         {},
         {username, password},
     )());
+    return dispatch(fetchSiteMetaIfNeeded());
 };
 
 export const INVALIDATE_AUTH = "INVALIDATE_AUTH";
@@ -20,10 +23,32 @@ export const REFRESH_AUTH = networkActionTypes("REFRESH_AUTH");
 export const refreshOrInvalidateAuth = () => (dispatch, getState) => {
     if (getState().auth.isRefreshing) return;
 
+    const access = getState().auth.tokens.access;
     const refresh = getState().auth.tokens.refresh;
     if (!refresh) return;
 
-    // TODO: Check if we need to bother refreshing
+    // Make sure the refresh token is valid; if not, invalidate the auth state
+    try {
+        const tokenData = jwtDecode(refresh);
+        if (Date.now() >= tokenData.exp * 1000) {
+            // Refresh token is expired
+            return dispatch(invalidateAuth());
+        }
+    } catch (e) {
+        return dispatch(invalidateAuth());
+    }
+
+    if (access) {
+        try {
+            const tokenData = jwtDecode(access);
+            if (Date.now() <= (tokenData.exp - ACCESS_TOKEN_LEEWAY) * 1000) {
+                // Access token still OK for now, return without doing anything
+                return;
+            }
+        } catch (e) {
+            // Malformed access token, continue with refreshing it
+        }
+    }
 
     return dispatch(networkAction(
         REFRESH_AUTH,
