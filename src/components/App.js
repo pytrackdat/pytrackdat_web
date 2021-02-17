@@ -37,7 +37,7 @@ const App = ({
     setInterval(() => {
         // Make sure access token is up to date
         refreshOrInvalidateAuth();
-    }, 45);
+    }, 45000);
 
     return <Layout>
         <Layout.Header style={{padding: "0 24px"}}>
