@@ -83,7 +83,7 @@ const RelationMap = ({relation, data, count, offset, limit, loading, filters, so
     // TODO: Layer views (colours, shapes, points / column, record info
     // TODO: Layer list on side - hide/show
 
-    return <div style={{display: visible ? "block" : "none"}}>
+    return <div style={visible ? {height: "auto"} : {height: 0, overflow: "hidden"}} aria-hidden={!visible}>
         <Spin spinning={loading}>
             <div ref={mapEl} style={{height: 500}} />
         </Spin>
