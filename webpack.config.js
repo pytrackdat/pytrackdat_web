@@ -38,6 +38,7 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, "./src/template.html"),
             hash: true,
+            publicPath: "/",
         }),
         new webpack.EnvironmentPlugin({
             NODE_ENV: "development",
