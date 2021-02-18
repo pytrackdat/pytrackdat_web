@@ -1,5 +1,6 @@
 import React from "react";
-import {connect} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
+import {useHistory} from "react-router-dom";
 
 import {Button, Form, Input, PageHeader} from "antd";
 
@@ -10,9 +11,17 @@ const FORM_LAYOUT = {
     wrapperCol: {span: 16},
 };
 
-const SignInView = ({isAuthenticating, performInitialAuth}) => {
+const SignInView = () => {
+    const history = useHistory();
+    const auth = useSelector(state => state.auth);
+    const dispatch = useDispatch();
+
+    if (auth.tokens.refresh) {
+        history.push({pathname: "/relations"});
+    }
+
     const onFinish = values => {
-        performInitialAuth(values.username, values.password);
+        dispatch(performInitialAuth(values.username, values.password));
     };
 
     return <PageHeader title="Sign In" style={{background: "white"}}>
@@ -25,15 +34,11 @@ const SignInView = ({isAuthenticating, performInitialAuth}) => {
                     <Input.Password />
                 </Form.Item>
                 <Form.Item wrapperCol={{offset: 8, span: 16}}>
-                    <Button type="primary" htmlType="submit" loading={isAuthenticating}>Sign In</Button>
+                    <Button type="primary" htmlType="submit" loading={auth.isAuthenticating}>Sign In</Button>
                 </Form.Item>
             </Form>
         </div>
     </PageHeader>;
 };
 
-const mapStateToProps = state => ({
-    isAuthenticating: state.auth.isAuthenticating,
-});
-
-export default connect(mapStateToProps, {performInitialAuth})(SignInView);
+export default SignInView;

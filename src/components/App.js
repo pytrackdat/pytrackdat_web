@@ -2,12 +2,15 @@ import React, {useEffect} from "react";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
+import {Redirect, Route, Switch} from "react-router-dom";
+
 import {Alert, Layout, Spin} from "antd";
 
 import {fetchSiteMetaIfNeeded, refreshOrInvalidateAuth, setRefreshToken} from "../actions";
 import {LS_REFRESH_TOKEN} from "../constants";
 import {refreshTokenValid} from "../utils";
 
+import PrivateRoute from "./PrivateRoute";
 import RelationsView from "./RelationsView";
 import SignInView from "./SignInView";
 
@@ -49,7 +52,11 @@ const App = ({
             {authError ? <Alert type="error" showIcon message="Authentication Error" description={authError} /> : null}
             {metaError ? <Alert type="error" showIcon message="Site Metadata Error" description={metaError} /> : null}
             <Spin spinning={isAuthenticating || isFetchingMeta}>
-                {tokens.refresh ? <RelationsView /> : <SignInView />}
+                <Switch>
+                    <Route path="/sign-in" exact><SignInView /></Route>
+                    <PrivateRoute path="/relations"><RelationsView /></PrivateRoute>
+                    <Redirect to={{pathname: "/relations"}} />
+                </Switch>
             </Spin>
         </Layout.Content>
     </Layout>;
