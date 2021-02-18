@@ -27,7 +27,7 @@ leaflet.Marker.prototype.options.icon = leaflet.icon({
 const LAYER_MAPBOX_BASE_MAP = "mapbox";
 
 const onPointFeature = (feature, layer) => {
-    // TODO: Tabular data
+    // TODO: Highlight the column corresponding with this feature
     layer.bindPopup(`<strong>${feature.properties.title}</strong>
 <table>
 <thead><tr><th>Field</th><th>Value</th></tr></thead>
@@ -43,10 +43,6 @@ ${feature.properties.table.map(([k, v]) => "<tr><td>" + k + "</td><td>"
 const TILE_LAYER_URL_TEMPLATE = "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}";
 
 const RelationMap = ({relation, data, count, offset, limit, loading, filters, sorter, loadPage, visible}) => {
-    const mapEl = useRef(null);
-    const [sMap, setSMap] = useState(null);
-    const [visibleLayers, setVisibleLayers] = useState([LAYER_MAPBOX_BASE_MAP]);
-
     const loadNewData = (current, pageSize) => {
         loadPage(relation.name_lower, pageSize * (current - 1), pageSize, filters, sorter);
     };
@@ -56,13 +52,38 @@ const RelationMap = ({relation, data, count, offset, limit, loading, filters, so
     const tableFieldNames = tableFields.map(f => f.name);
     const pointFields = fields.filter(f => f.data_type === "point");
 
+    // Primary key
+    const pk = (relation || {}).fields.filter(isKey)[0] || {};
+
+    // Point layers
+    // TODO: Avoid calculating this every render
+    const pointSets = pointFields.map(f => [f.name, data.map(e => ({
+        type: "Feature",
+        properties: {
+            title: e[pk.name],
+            table: Object.entries(e).filter(([k, _v]) => tableFieldNames.includes(k)),
+        },  // TODO: Tabular data with all fields
+        geometry: e[f.name]
+    })).filter(e => e.geometry[0] !== 0)]);  // Filter out ""null"" (0, 0) points
+
+    // Initially show all point sets
+    // TODO: Additional visibility logic for foreign keys, etc.
+    // TODO: Avoid calculating this every render
+    const initialVisibleLayers = [LAYER_MAPBOX_BASE_MAP, ...pointSets.map(([fn, _]) => fn)];
+
+    // State setup
+    const mapEl = useRef(null);
+    const [sMap, setSMap] = useState(null);
+    const [visibleLayers, setVisibleLayers] = useState(initialVisibleLayers);
+
+    // Effect setup
     useEffect(() => {
         if (!mapEl.current) return;
 
-        let initial = false;
+        let initial = !!sMap;
         let lMap = null;
 
-        if (sMap) {
+        if (initial) {  // Not the first load, use the existing map object
             sMap.eachLayer(l => l instanceof leaflet.TileLayer || l.remove());
             lMap = sMap;
         } else {
@@ -78,23 +99,10 @@ const RelationMap = ({relation, data, count, offset, limit, loading, filters, so
                 zoomOffset: -1,
                 accessToken: MAPBOX_ACCESS_TOKEN,
             }).addTo(lMap);
-            initial = true;
         }
 
-        // Primary key
-        const pk = (relation || {}).fields.filter(isKey)[0] || {};
-
-        // Point layers
-        const pointSets = pointFields.map(f => data.map(e => ({
-            type: "Feature",
-            properties: {
-                title: e[pk.name],
-                table: Object.entries(e).filter(([k, _v]) => tableFieldNames.includes(k)),
-            },  // TODO: Tabular data with all fields
-            geometry: e[f.name]
-        })).filter(e => e.geometry[0] !== 0));  // Filter out ""null"" (0, 0) points
-
-        pointSets.forEach(ps => {
+        pointSets.forEach(([layerName, ps]) => {
+            if (!visibleLayers.includes(layerName)) return;  // TODO: Set or otherwise better data structure
             leaflet.geoJSON(ps, {onEachFeature: onPointFeature}).addTo(lMap);
         });
 
@@ -102,11 +110,7 @@ const RelationMap = ({relation, data, count, offset, limit, loading, filters, so
         // TODO: Shapes, etc.
 
         setSMap(lMap);
-
-        if (initial) {
-            setVisibleLayers([LAYER_MAPBOX_BASE_MAP, ...pointFields.map(f => f.name)]);
-        }
-    }, [data, loading])
+    }, [data, loading, visibleLayers])
 
     // TODO: Layer views (colours, shapes, points / column, record info
     // TODO: Layer list on side - hide/show
@@ -133,6 +137,8 @@ const RelationMap = ({relation, data, count, offset, limit, loading, filters, so
         }
     ];
 
+    const onLayerCheck = checkedKeys => setVisibleLayers(checkedKeys);
+
     return <div style={visible ? {height: "auto"} : {height: 0, overflow: "hidden"}} aria-hidden={!visible}>
         <Spin spinning={loading}>
             <Row>
@@ -142,6 +148,7 @@ const RelationMap = ({relation, data, count, offset, limit, loading, filters, so
                           autoExpandParent
                           expandedKeys={["base_maps"]}
                           checkedKeys={visibleLayers}
+                          onCheck={onLayerCheck}
                           treeData={layerTreeData} />
                 </Col>
                 <Col span={18}>
