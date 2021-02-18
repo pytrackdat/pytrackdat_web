@@ -1,6 +1,6 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {useHistory} from "react-router-dom";
+import {useHistory, useLocation} from "react-router-dom";
 
 import {Button, Form, Input, PageHeader} from "antd";
 
@@ -13,12 +13,19 @@ const FORM_LAYOUT = {
 
 const SignInView = () => {
     const history = useHistory();
-    const auth = useSelector(state => state.auth);
+    const location = useLocation();
+    const isAuthenticating = useSelector(state => state.auth.isAuthenticating);
+    const authTokens = useSelector(state => state.auth.tokens);
     const dispatch = useDispatch();
 
-    if (auth.tokens.refresh) {
-        history.push({pathname: "/relations"});
-    }
+    const {from} = location.state || {from: {pathname: "/relations"}};
+
+    useEffect(() => {
+        if (authTokens.refresh) {
+            // Redirect to the original URL, without adding anything to the browser history
+            history.replace(from);
+        }
+    }, [authTokens])
 
     const onFinish = values => {
         dispatch(performInitialAuth(values.username, values.password));
@@ -34,7 +41,7 @@ const SignInView = () => {
                     <Input.Password />
                 </Form.Item>
                 <Form.Item wrapperCol={{offset: 8, span: 16}}>
-                    <Button type="primary" htmlType="submit" loading={auth.isAuthenticating}>Sign In</Button>
+                    <Button type="primary" htmlType="submit" loading={isAuthenticating}>Sign In</Button>
                 </Form.Item>
             </Form>
         </div>
