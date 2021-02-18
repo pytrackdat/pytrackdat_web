@@ -44,5 +44,8 @@ module.exports = {
             // TODO: Site URL
             // TODO: MapBox access token
         }),
-    ]
+    ],
+    devServer: {
+        historyApiFallback: true,
+    },
 }
