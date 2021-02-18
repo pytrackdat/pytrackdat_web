@@ -1,5 +1,6 @@
 import React, {useEffect} from "react";
 import PropTypes from "prop-types";
+import {Link, useRouteMatch} from "react-router-dom";
 
 import {Table} from "antd";
 
@@ -12,6 +13,8 @@ const RelationTable = ({relation, data, count, offset, limit, loading, filters, 
     }, [relation]);
 
     const fields = (relation || {}).fields || [];
+
+    const {url} = useRouteMatch();
 
     // noinspection JSUnusedGlobalSymbols
     const colSpec = fields
@@ -35,8 +38,10 @@ const RelationTable = ({relation, data, count, offset, limit, loading, filters, 
                 onFilter: (value, record) => record[f.name] === value,
             } : {}),
             ...(f.data_type === "point" ? {
-                // TODO: I think DRF-GIS supports null points now...
-                render: d => (JSON.stringify(d.coordinates) === "[0,0]" ? "" : JSON.stringify(d.coordinates))
+                render: d => (JSON.stringify(d.coordinates) === "[0,0]" ? "" : JSON.stringify(d.coordinates)),
+            } : {}),
+            ...(isKey(f) ? {
+                render: d => <Link to={`${url}/items/${d}`}>{d}</Link>,
             } : {}),
         }));
 
