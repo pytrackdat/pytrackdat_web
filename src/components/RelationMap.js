@@ -11,7 +11,7 @@ import iconShadow from "leaflet/dist/images/marker-shadow.png";
 
 import {MAPBOX_ACCESS_TOKEN} from "../config";
 import {PAGE_SIZE_OPTIONS} from "../constants";
-import {isKey} from "../utils";
+import {getPK, isKey} from "../utils";
 
 // https://github.com/Leaflet/Leaflet/issues/4968
 // Fix default marker icon (thanks crob611)
@@ -53,7 +53,7 @@ const RelationMap = ({relation, data, count, offset, limit, loading, filters, so
     const pointFields = fields.filter(f => f.data_type === "point");
 
     // Primary key
-    const pk = (relation || {}).fields.filter(isKey)[0] || {};
+    const pk = getPK(relation);
 
     // Point layers
     // TODO: Avoid calculating this every render

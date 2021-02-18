@@ -4,6 +4,8 @@ import jwtDecode from "jwt-decode";
 
 export const isKey = f => KEY_TYPES.includes(f.data_type);
 
+export const getPK = r => ((r || {}).fields || []).filter(isKey)[0] || null;
+
 export const networkActionTypes = name => ({
     REQUEST: `${name}.REQUEST`,
     RECEIVE: `${name}.RECEIVE`,
