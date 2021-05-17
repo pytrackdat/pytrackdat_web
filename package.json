@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/pytrackdat/pytrackdat_web#readme",
   "dependencies": {
-    "antd": "^4.15.3",
+    "antd": "^4.15.5",
     "jwt-decode": "^3.1.2",
     "leaflet": "^1.7.1",
     "prop-types": "^15.7.2",
@@ -33,14 +33,14 @@
     "redux-thunk": "^2.3.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.14.0",
-    "@babel/preset-env": "^7.14.0",
+    "@babel/core": "^7.14.2",
+    "@babel/preset-env": "^7.14.2",
     "@babel/preset-react": "^7.13.13",
     "babel-loader": "^8.2.1",
     "babel-plugin-import": "^1.13.3",
     "babel-polyfill": "^6.26.0",
     "css-loader": "^5.2.4",
-    "html-webpack-plugin": "^4.5.0",
+    "html-webpack-plugin": "^4.5.2",
     "style-loader": "^2.0.0",
     "url-loader": "^4.1.1",
     "webpack": "^4.46.0",
