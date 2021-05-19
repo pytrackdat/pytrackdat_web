@@ -4,7 +4,8 @@ import PropTypes from "prop-types";
 
 import {Redirect, Route, Switch} from "react-router-dom";
 
-import {Alert, Layout, Spin} from "antd";
+import {Alert, Input, Layout, Spin} from "antd";
+import {SearchOutlined} from "@ant-design/icons";
 
 import {fetchSiteMetaIfNeeded, refreshOrInvalidateAuth, setRefreshToken} from "../actions";
 import {LS_REFRESH_TOKEN} from "../constants";
@@ -43,10 +44,18 @@ const App = ({
     }, 45000);
 
     return <Layout>
-        <Layout.Header style={{padding: "0 24px"}}>
-            <h1 style={{margin: 0, padding: 0, color: "#DFDFDF"}}>
-                PyTrackDat{meta.site_name ? ":" : ""} {meta.site_name}
-            </h1>
+        <Layout.Header style={{padding: "0 24px", height: "100%"}}>
+            <div style={{display: "flex"}}>
+                <h1 style={{margin: "0 24px 0 0", padding: 0, color: "#DFDFDF"}}>
+                    PyTrackDat{meta.site_name ? ":" : ""} {meta.site_name}
+                </h1>
+                <div style={{flex: 1}}>
+                    <Input style={{marginTop: "12px"}}
+                           size="large"
+                           placeholder="Enter barcode or search term..."
+                           prefix={<SearchOutlined />} />
+                </div>
+            </div>
         </Layout.Header>
         <Layout.Content>
             {authError ? <Alert type="error" showIcon message="Authentication Error" description={authError} /> : null}

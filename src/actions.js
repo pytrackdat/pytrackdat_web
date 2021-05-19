@@ -90,3 +90,15 @@ export const fetchDataType = (
         {dataType, offset, limit, filters, sorter}
     )());
 };
+
+
+export const PERFORM_SEARCH = networkActionTypes("PERFORM_SEARCH");
+export const performSearch = query => (dispatch, getState) => {
+    if (getState().search.isFetching) return;
+    return dispatch(networkAction(
+        PERFORM_SEARCH,
+        `/search/?q=${encodeURIComponent(query)}`,
+        "GET",
+        {query},
+    ));
+};

@@ -162,10 +162,24 @@ const data = (
     }
 };
 
+const search = (
+    state = {
+        query: "",
+        results: {},
+    },
+    action
+) => {
+    switch (action.type) {
+        default:
+            return state;
+    }
+};
+
 const rootReducer = combineReducers({
     auth,
     meta,
     data,
+    search,
 });
 
 export default rootReducer;
