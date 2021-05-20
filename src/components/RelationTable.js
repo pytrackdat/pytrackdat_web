@@ -54,14 +54,14 @@ const RelationTable = ({relation, data, count, offset, limit, loading, filters, 
                   dataSource={data}
                   loading={loading}
                   rowKey={fields.filter(isKey)[0]["name"]}
-                  // rowSelection={{
-                  //     type: "checkbox",
-                  //     onChange: () => {},  // TODO
-                  //     getCheckboxProps: record => {
-                  //         const key = fields.filter(isKey)[0];
-                  //         return {name: record[key] || "default"};
-                  //     }
-                  // }}
+                  rowSelection={{
+                      type: "checkbox",
+                      onChange: () => {},  // TODO
+                      getCheckboxProps: record => {
+                          const key = fields.filter(isKey)[0];
+                          return {name: record[key] || "default"};
+                      }
+                  }}
                   onChange={({pageSize, current}, filters, sorter) => {
                       loadPage(relation.name_lower, pageSize * (current - 1), pageSize, filters, sorter);
                   }}
