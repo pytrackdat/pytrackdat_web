@@ -47,7 +47,6 @@ const ItemView = () => {
     // TODO: This relies on the item being loaded in the current page; load it via the API instead.
     const data = dataByType[relationName] || {};
     const item = (data.data || []).find(i => i[pk.name].toString() === itemPK) || {};
-    console.log(relation, item);
 
     // TODO: 404
 

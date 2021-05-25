@@ -14,8 +14,6 @@ export const networkActionTypes = name => ({
 
 export const networkAction = (types, url, method="GET", params={}, body={}) => () =>
     async (dispatch, getState) => {
-        console.log(types);
-
         await dispatch({params, type: types.REQUEST});
 
         const accessToken = getState().auth.tokens.access;
