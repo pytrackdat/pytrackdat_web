@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
@@ -53,17 +53,22 @@ const App = ({
         refreshOrInvalidateAuth();
     }, 45000);
 
+    const [searchValue, setSearchValue] = useState();
+
     // noinspection JSCheckFunctionSignatures
     const throttledSearch = useRef(throttle(performSearch, 200)).current;
 
     const onSearchChange = query => {
+        setSearchValue(query);
         // noinspection JSValidateTypes
         throttledSearch(query);
     };
 
     const onSearchSelect = item => {
+        if (!item) return;
         const data = JSON.parse(item);
-        history.push(`/relations/${data.url_name}/items/${data.pk}`);
+        history.push(`/relations/${data[0]}/items/${data[1]}`);
+        setSearchValue("");
     };
 
     const autoCompleteOptions = isFetchingSearch ? [
@@ -79,7 +84,7 @@ const App = ({
             label: "Barcodes",
             options: searchResults.barcodes.map(r => ({
                 key: "_bc_" + r.pk.toString(),
-                value: JSON.stringify(r),
+                value: JSON.stringify([r.url_name, r.pk]),
                 label: <span><span style={{fontWeight: "bold"}}>{r.name}</span> {r.pk}</span>,
             })),
         }] : []),
@@ -89,7 +94,7 @@ const App = ({
             label: "Search Results",
             options: searchResults.full_text.map(r => ({
                 key: "_sr_" + r.pk.toString(),
-                value: JSON.stringify(r),
+                value: JSON.stringify([r.url_name, r.pk]),
                 label: <span><span style={{fontWeight: "bold"}}>{r.name}</span> {r.pk}</span>,
                 // TODO: Full text match underlining
             })),
@@ -104,6 +109,7 @@ const App = ({
                 </h1>
                 <div style={{flex: 1}}>
                     <AutoComplete style={{marginTop: "12px", width: "100%", maxWidth: "800px", float: "right"}}
+                                  value={searchValue}
                                   options={autoCompleteOptions}
                                   onChange={onSearchChange}
                                   onSelect={onSearchSelect}>
