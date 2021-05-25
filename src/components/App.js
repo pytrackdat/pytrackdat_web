@@ -117,6 +117,7 @@ const App = ({
         <Layout.Content>
             {authError ? <Alert type="error" showIcon message="Authentication Error" description={authError} /> : null}
             {metaError ? <Alert type="error" showIcon message="Site Metadata Error" description={metaError} /> : null}
+            {searchError ? <Alert type="error" showIcon message="Search Error" description={searchError} /> : null}
             <Spin spinning={isAuthenticating || isFetchingMeta}>
                 <Switch>
                     <Route path="/sign-in" exact><SignInView /></Route>
