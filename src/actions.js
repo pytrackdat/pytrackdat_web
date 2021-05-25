@@ -94,11 +94,13 @@ export const fetchDataType = (
 
 export const PERFORM_SEARCH = networkActionTypes("PERFORM_SEARCH");
 export const performSearch = query => (dispatch, getState) => {
-    if (getState().search.isFetching) return;
+    query = query.toLocaleString();
+    if (getState().search.isFetching || query.trim() === "") return;
+
     return dispatch(networkAction(
         PERFORM_SEARCH,
-        `/search/?q=${encodeURIComponent(query)}`,
+        `/search/?q=${encodeURIComponent(query)}&limit=10`,
         "GET",
         {query},
-    ));
+    )());
 };

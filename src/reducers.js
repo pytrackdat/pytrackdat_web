@@ -6,7 +6,8 @@ import {
     INVALIDATE_AUTH,
     FETCH_META,
     FETCH_DATA,
-    SET_REFRESH_TOKEN
+    SET_REFRESH_TOKEN,
+    PERFORM_SEARCH,
 } from "./actions";
 import {LS_REFRESH_TOKEN} from "./constants";
 
@@ -166,10 +167,31 @@ const search = (
     state = {
         query: "",
         results: {},
+        isFetching: false,
+        errorMessage: "",
     },
     action
 ) => {
     switch (action.type) {
+        case PERFORM_SEARCH.REQUEST:
+            return {
+                ...state,
+                query: action.query,
+                isFetching: true,
+            };
+        case PERFORM_SEARCH.RECEIVE:
+            return {
+                ...state,
+                results: action.data,
+                isFetching: false,
+                errorMessage: "",
+            };
+        case PERFORM_SEARCH.ERROR:
+            return {
+                ...state,
+                errorMessage: action.message,
+                isFetching: false,
+            };
         default:
             return state;
     }
