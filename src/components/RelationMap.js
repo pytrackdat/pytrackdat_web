@@ -9,7 +9,7 @@ import icon from "leaflet/dist/images/marker-icon.png";
 import icon2X from "leaflet/dist/images/marker-icon-2x.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
 
-import {MAPBOX_ACCESS_TOKEN} from "../config";
+import {MAPBOX_TOKEN} from "../config";
 import {PAGE_SIZE_OPTIONS} from "../constants";
 import {getPK, isKey} from "../utils";
 
@@ -97,7 +97,7 @@ const RelationMap = ({relation, data, count, offset, limit, loading, filters, so
                 id: 'mapbox/streets-v11',
                 tileSize: 512,
                 zoomOffset: -1,
-                accessToken: MAPBOX_ACCESS_TOKEN,
+                accessToken: MAPBOX_TOKEN,
             }).addTo(lMap);
         }
 

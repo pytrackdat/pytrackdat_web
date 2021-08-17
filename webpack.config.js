@@ -1,8 +1,12 @@
+// noinspection JSValidateTypes
+
 const path = require("path");
 const webpack = require("webpack");
+const CopyPlugin = require("copy-webpack-plugin");
+const DotenvPlugin = require("dotenv-webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
-module.exports = {
+module.exports = env => ({
     entry: ["babel-polyfill", path.resolve(__dirname, "./src/index.js")],
     module: {
         rules: [
@@ -26,8 +30,9 @@ module.exports = {
     },
     output: {
         path: path.resolve(__dirname, "dist"),
-        filename: "bundle.js",
-        chunkFilename: "[name].bundle.js"
+        filename: "[name].[hash:8].js",
+        sourceMapFilename: "[name].[hash:8].map",
+        chunkFilename: "[name].[hash:8].js",
     },
     optimization: {
         splitChunks: {
@@ -35,6 +40,9 @@ module.exports = {
         }
     },
     plugins: [
+        new CopyPlugin({
+            patterns: [{from: "config", to: "config"}],
+        }),
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, "./src/template.html"),
             hash: true,
@@ -42,11 +50,12 @@ module.exports = {
         }),
         new webpack.EnvironmentPlugin({
             NODE_ENV: "development",
-            // TODO: Site URL
-            // TODO: MapBox access token
         }),
+        ...(env.production ? [] : [
+            new DotenvPlugin(),
+        ]),
     ],
     devServer: {
         historyApiFallback: true,
     },
-}
+});
