@@ -12,7 +12,7 @@ const stringify = v => {
     if (v === null) return "null";
     if (v === undefined) return "undefined";
     if (typeof v === "string") return v;
-    if (["number", "boolean"].includes(v)) return v.toString();
+    if (["number", "boolean"].includes(typeof v)) return v.toString();
     return JSON.stringify(v, null, 2);
 };
 
